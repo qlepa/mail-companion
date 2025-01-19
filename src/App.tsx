@@ -1,35 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
+import { Button } from "./components/Button";
+import { TextField } from "./components/Textfield";
+import { SelectScore } from "./components/SelectScore";
+import { openAIService } from "./services/openai.service";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [mailContent, setMailContent] = useState("");
+  const [response, setResponse] = useState("");
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="container">
+      <TextField
+        value={mailContent}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setMailContent(e.target.value)
+        }
+        placeholder="Wpisz treść maila..."
+        size="large"
+      />
+      <div className="controls">
+        <Button
+          onClick={async () => {
+            try {
+              const response = await openAIService.analyzeText(mailContent);
+              setResponse(response);
+            } catch (error) {
+              console.error("Błąd podczas analizy:", error);
+              setResponse("Wystąpił błąd podczas analizy tekstu");
+            }
+          }}
+        >
+          Wyślij do analizy
+        </Button>
+        <SelectScore
+          value={mailContent}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setMailContent(e.target.value)
+          }
+        />
+        {response && (
+          <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+            <pre className="whitespace-pre-wrap">{response}</pre>
+          </div>
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      <SelectScore
+        value={mailContent}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          setMailContent(e.target.value)
+        }
+      />
+    </div>
+  );
 }
 
-export default App
+export default App;
