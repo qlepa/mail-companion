@@ -65,8 +65,8 @@ export const SelectScore = forwardRef<HTMLSelectElement, SelectScoreProps>(
           required={required}
           className={`
             px-3 py-2
-            border rounded-md
-            ${error ? "border-red-500" : "border-gray-300"}
+            border-2 rounded-md
+            ${error ? "border-red-500" : "border-[#F5DEB3]"}
             ${disabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"}
             focus:outline-none
             focus:ring-2

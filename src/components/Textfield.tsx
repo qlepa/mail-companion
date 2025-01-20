@@ -21,8 +21,22 @@ export const TextField = ({
 }: TextFieldProps) => {
   const sizeClasses = {
     small: "px-2 py-1 text-sm",
-    medium: "px-3 py-2 text-base",
-    large: "px-4 py-3 text-lg",
+    medium: `px-3 py-2 text-base
+      min-w-[754px]
+      resize-y
+      overflow-y-auto
+      whitespace-pre-wrap
+      leading-relaxed`,
+    large: `
+      px-6 py-4 
+      text-lg 
+      min-h-[500px]
+      min-w-[990px]
+      resize-y
+      overflow-y-auto
+      whitespace-pre-wrap
+      leading-relaxed
+    `,
   };
 
   return (
@@ -36,8 +50,8 @@ export const TextField = ({
         placeholder={placeholder}
         className={`
           ${sizeClasses[size]}
-          border rounded-md
-          ${error ? "border-red-500" : "border-gray-300"}
+          border-2 rounded-md
+          ${error ? "border-red-500" : "border-[#F5DEB3]"}
           ${disabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"}
           focus:outline-none
           focus:ring-2

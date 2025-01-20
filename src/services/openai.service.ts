@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import metaPromptContent from '../assets/content/meta-prompt.md?raw';
+import { OpenAiResponse } from '../types/openai/OpenAIResponse';
 
 class OpenAIService {
   private openai: OpenAI;
@@ -18,9 +19,8 @@ class OpenAIService {
     this.metaPrompt = metaPromptContent;
   }
 
-  public async analyzeText(text: string): Promise<string> {
+  public async analyzeText(text: string): Promise<OpenAiResponse | null> {
     try {
-      console.log('Wysyłany prompt:', this.metaPrompt);
       const completion = await this.openai.chat.completions.create({
         messages: [
           { role: 'system', content: this.metaPrompt },
@@ -29,13 +29,54 @@ class OpenAIService {
         model: 'gpt-4',
       });
 
-      return completion.choices[0]?.message?.content || '';
+      const content = completion.choices[0]?.message?.content;
+      if (!content) return null;
+      
+      try {
+        return JSON.parse(content) as OpenAiResponse;
+      } catch (error) {
+        console.error('Błąd podczas parsowania odpowiedzi:', error);
+        throw new Error('Otrzymana odpowiedź ma nieprawidłowy format JSON');
+      }
     } catch (error) {
       console.error('Błąd podczas analizy tekstu:', error);
       throw new Error('Nie udało się przeanalizować tekstu');
     }
   }
+  public async generateResponseMail(prompt: string, mailContent: string, score: string): Promise<OpenAiResponse | null> {
+    try {
+      const completion = await this.openai.chat.completions.create({
+        messages: [
+          { role: 'system', content: this.metaPrompt },
+          { role: 'user', content: `
+            Content of the mail to respond to:
+            ${mailContent}
+            
+            Additional instructions:
+            ${prompt}
+            
+            The response should have the following rating: ${score}
+          ` }
+        ],
+        model: 'gpt-4',
+      });
+
+      const content = completion.choices[0]?.message?.content;
+      if (!content) return null;
+      
+      try {
+        return JSON.parse(content) as OpenAiResponse;
+      } catch (error) {
+        console.error('Błąd podczas parsowania odpowiedzi:', error);
+        throw new Error('Otrzymana odpowiedź ma nieprawidłowy format JSON');
+      }
+    } catch (error) {
+      console.error('Błąd podczas generowania odpowiedzi:', error);
+      throw new Error('Nie udało się wygenerować odpowiedzi');
+    }
+  }
 }
+
 
 export const openAIService = new OpenAIService();
 
